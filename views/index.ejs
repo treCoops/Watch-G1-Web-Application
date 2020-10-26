@@ -274,28 +274,35 @@
       }
     });
 
-    firebase.database().ref('time').once('value', function (snapshot) {
+    firebase.database().ref('time').once('value', function (snapshot1) {
       let data = [];
-      snapshot.forEach(function(childSnapshot){
+      let count = 0;
+      snapshot1.forEach(function(childSnapshot){
         firebase.database().ref('time').child(childSnapshot.key).on('value', function (snapshot){
+            count++;
             let dbVal = (snapshot.val()/1000)/3600;
             // console.log(dbVal);
             let val = {y:childSnapshot.key, a:dbVal};
             data.push(val);
+            console.log(snapshot1.numChildren());
+            if(snapshot1.numChildren() == count){
+
+              Morris.Bar({
+                element: 'morris-bar-chart',
+                data: data,
+                xkey: 'y',
+                ykeys: ['a'],
+                labels: ['Hours'],
+                barColors:['#55ce63', '#2f3d4a', '#009efb'],
+                hideHover: 'auto',
+                gridLineColor: '#eef0f2',
+                resize: true
+              });
+            }
         });
 
       });
-      Morris.Bar({
-        element: 'morris-bar-chart',
-        data: data,
-        xkey: 'y',
-        ykeys: ['a'],
-        labels: ['A'],
-        barColors:['#55ce63', '#2f3d4a', '#009efb'],
-        hideHover: 'auto',
-        gridLineColor: '#eef0f2',
-        resize: true
-      });
+
     });
 
 
