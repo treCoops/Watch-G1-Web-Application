@@ -245,6 +245,17 @@
 <script src="/plugins/styleswitcher/jQuery.style.switcher.js"></script>
 <script>
 
+  function convertSeconds(seconds) {
+    let h = seconds/ 3600;
+    let m = (seconds % 3600) / 60;
+    let s = seconds % 60;
+    let sh = (h > 0 ? h + "." + "" : "0");
+    let sm = (m < 10 && m > 0 && h > 0 ? "0" : "") + (m > 0 ? (h > 0 && s === 0 ? m : m + "" + "") : "00");
+//        String ss = (s == 0 && (h > 0 || m > 0) ? "" : (s < 10 && (h > 0 || m > 0) ? "0" : "") + String.valueOf(s) + " " + "sec");
+//        return sh + (h > 0 ? " " : "") + sm + (m > 0 ? " " : "") + ss;
+    return sh + (h > 0 ? "" : ".") + sm + (m > 0 ? "" : "");
+  }
+
   $( document ).ready(function() {
     firebase.database().ref('slippersG1').on('value', function (snapshot) {
       if(snapshot.val().sound == 1){
@@ -277,10 +288,15 @@
     firebase.database().ref('time').once('value', function (snapshot1) {
       let data = [];
       let count = 0;
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
       snapshot1.forEach(function(childSnapshot){
         firebase.database().ref('time').child(childSnapshot.key).on('value', function (snapshot){
             count++;
-            let dbVal = (snapshot.val()/1000)/3600;
+            // let dbVal = (snapshot.val()/1000)/3600;
+            let dbVal = formatter.format(parseFloat(convertSeconds(snapshot.val())));
             // console.log(dbVal);
             let val = {y:childSnapshot.key, a:dbVal};
             data.push(val);
